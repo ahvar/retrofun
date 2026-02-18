@@ -7,9 +7,9 @@ class Product(Model):
     __tablename__ = "products"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(64))
-    manufacturer: Mapped[str] = mapped_column(String(64))
-    year: Mapped[int]
+    name: Mapped[str] = mapped_column(String(64), index=True, unique=True)
+    manufacturer: Mapped[str] = mapped_column(String(64), index=True)
+    year: Mapped[int] = mapped_column(index=True)
     country: Mapped[str] = mapped_column(String(32))
     cpu: Mapped[str] = mapped_column(String(32))
 

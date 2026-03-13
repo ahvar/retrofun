@@ -1,6 +1,14 @@
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db import Model
+
+
+ProductCountry = Table(
+    "products_countries",
+    Model.metadata,
+    Column("product_id", ForeignKey("products.id"), primary_key=True, nullable=False),
+    Column("country_id", ForeignKey("countries.id"), primary_key=True, nullable=False),
+)
 
 
 class Product(Model):
@@ -12,12 +20,27 @@ class Product(Model):
         ForeignKey("manufacturers.id"), index=True
     )  # naming convention: <referenced-entity>_id
     year: Mapped[int] = mapped_column(index=True)
-    country: Mapped[str] = mapped_column(String(32))
     cpu: Mapped[str] = mapped_column(String(32))
     manufacturer: Mapped["Manufacturer"] = relationship(back_populates="products")
+    countries: Mapped[list["Country"]] = relationship(
+        secondary=ProductCountry, back_populates="products"
+    )
 
     def __repr__(self):
         return f"Product({self.id}, '{self.name}')"
+
+
+class Country(Model):
+    __tablename__ = "countries"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(32), index=True, unique=True)
+    products: Mapped[list["Product"]] = relationship(
+        secondary=ProductCountry, back_populates="countries"
+    )
+
+    def __repr__(self):
+        return f"Country({self.id}, '{self.name}')"
 
 
 class Manufacturer(Model):
